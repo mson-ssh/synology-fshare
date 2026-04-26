@@ -113,7 +113,7 @@ fi
 echo -e "${YELLOW}  →${NC} Cập nhật cấu hình pyLoad..."
 if [ -f "$PYLOAD_CONF" ]; then
     # Tắt plugin FshareVn mặc định của pyLoad
-    sed -i '/FshareVn - "FshareVn":/{n; s/= True/= False/}' "$PYLOAD_CONF"
+    sed -i '/^FshareVn - "FshareVn":$/{n; s/bool activated : "Activated" = True/bool activated : "Activated" = False/}' "$PYLOAD_CONF"
 fi
 
 # ── Fix owner ────────────────────────────────────────────────────────────────
