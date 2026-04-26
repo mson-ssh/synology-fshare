@@ -8,7 +8,7 @@ PYLOAD_ACCOUNT="/var/packages/DownloadStation/target/pyload/module/plugins/accou
 PYLOAD_CONF="/var/packages/DownloadStation/etc/pyload/plugin.conf"
 HOST_ENABLED="/var/packages/DownloadStation/etc/download/host_enabled.conf"
 
-# Colors
+# ── Colors ────────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -16,6 +16,7 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
 
+# ── Header ────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${CYAN}╔══════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}║${NC}  ${BOLD}Fshare.vn Plugin Installer${NC}               ${CYAN}║${NC}"
@@ -23,6 +24,7 @@ echo -e "${CYAN}║${NC}  for Synology Download Station            ${CYAN}║${N
 echo -e "${CYAN}╚══════════════════════════════════════════╝${NC}"
 echo ""
 
+# ── Kiểm tra môi trường ───────────────────────────────────────────────────────
 if [ ! -f /etc/synoinfo.conf ]; then
     echo -e "${RED}  ✗ Script này chỉ chạy trên Synology NAS.${NC}"
     exit 1
@@ -38,9 +40,106 @@ if ! command -v curl &> /dev/null; then
     exit 1
 fi
 
+# ── Chọn loại tài khoản ───────────────────────────────────────────────────────
+echo -e "  ${BOLD}Chọn loại tài khoản Fshare:${NC}"
+echo ""
+echo -e "  ${CYAN}1.${NC} Fshare VIP Account ${BOLD}(Tài khoản VIP)${NC}"
+echo -e "  ${CYAN}2.${NC} Fshare Account API Personal ${BOLD}(Tài khoản thường được cấp API)${NC}"
+echo -e "  ${CYAN}3.${NC} Huỷ cài đặt"
 echo ""
 
-# ── Xóa plugin cũ nếu có ─────────────────────────────────────────────────────
+while true; do
+    read -p "  Nhập lựa chọn [1/2/3]: " ACCOUNT_TYPE
+    case "$ACCOUNT_TYPE" in
+        1)
+            echo ""
+            echo -e "  ${YELLOW}→${NC} Sử dụng API key dành cho tài khoản VIP"
+            CUSTOM_API_KEY=""
+            break
+            ;;
+        2)
+            while true; do
+                echo ""
+                echo -e "  ${YELLOW}→${NC} Vui lòng nhập API key được Fshare cấp cá nhân:"
+                echo ""
+                read -p "  API Key: " CUSTOM_API_KEY
+                if [ -z "$CUSTOM_API_KEY" ]; then
+                    echo ""
+                    echo -e "${RED}  ✗ API key không được để trống.${NC}"
+                    echo ""
+                    echo -e "  Bạn có muốn huỷ cài đặt không?"
+                    read -p "  Huỷ cài đặt? [y/N]: " CONFIRM_CANCEL
+                    if [[ "$CONFIRM_CANCEL" =~ ^[Yy]$ ]]; then
+                        echo ""
+                        echo -e "  ${RED}✗ Đã huỷ cài đặt.${NC}"
+                        echo ""
+                        exit 0
+                    fi
+                else
+                    echo -e "  ${YELLOW}→${NC} Đã nhận API key cá nhân"
+                    break
+                fi
+            done
+            break
+            ;;
+        3)
+            echo ""
+            echo -e "  ${RED}  Bạn có chắc muốn huỷ và xoá toàn bộ plugin đã cài không?${NC}"
+            read -p "  Xác nhận [y/N]: " CONFIRM_UNINSTALL
+            if [[ "$CONFIRM_UNINSTALL" =~ ^[Yy]$ ]]; then
+                echo ""
+                echo -e "${YELLOW}  →${NC} Xoá plugin fshare-vn..."
+                rm -rf "$PLUGIN_DIR"
+                rm -rf "$HOST_DIR"
+                rm -rf "/var/packages/DownloadStation/etc/download/userhosts/fsharevn"
+                rm -rf "/var/packages/DownloadStation/target/hostscript/hosts/fsharevn"
+
+                echo -e "${YELLOW}  →${NC} Xoá entry trong host_enabled.conf..."
+                sed -i '/^\[fshare-vn\]/,/^enable/d' "$HOST_ENABLED" 2>/dev/null
+
+                echo -e "${YELLOW}  →${NC} Khôi phục pyLoad plugin..."
+                if [ -f "$PYLOAD_HOSTER/FshareVn.py.bak" ]; then
+                    cp "$PYLOAD_HOSTER/FshareVn.py.bak" "$PYLOAD_HOSTER/FshareVn.py"
+                    rm -f "$PYLOAD_HOSTER/FshareVn.pyc"
+                fi
+                if [ -f "$PYLOAD_ACCOUNT/FshareVn.py.bak" ]; then
+                    cp "$PYLOAD_ACCOUNT/FshareVn.py.bak" "$PYLOAD_ACCOUNT/FshareVn.py"
+                    rm -f "$PYLOAD_ACCOUNT/FshareVn.pyc"
+                fi
+
+                echo -e "${YELLOW}  →${NC} Bật lại FshareVn pyLoad mặc định..."
+                if [ -f "$PYLOAD_CONF" ]; then
+                    sed -i '/^FshareVn - "FshareVn":$/{n; s/bool activated : "Activated" = False/bool activated : "Activated" = True/}' "$PYLOAD_CONF"
+                fi
+
+                echo -e "${YELLOW}  →${NC} Xoá session cache..."
+                rm -rf /tmp/dsm_fshare-vn/
+
+                echo -e "${YELLOW}  →${NC} Restart Download Station..."
+                synopkg stop DownloadStation > /dev/null 2>&1
+                sleep 2
+                synopkg start DownloadStation > /dev/null 2>&1
+
+                echo ""
+                echo -e "${RED}╔══════════════════════════════════════════╗${NC}"
+                echo -e "${RED}║${NC}  ${BOLD}✓ Đã huỷ và xoá toàn bộ plugin.${NC}          ${RED}║${NC}"
+                echo -e "${RED}╚══════════════════════════════════════════╝${NC}"
+                echo ""
+                exit 0
+            else
+                echo -e "  ${YELLOW}→${NC} Đã huỷ thao tác. Quay lại menu..."
+                echo ""
+            fi
+            ;;
+        *)
+            echo -e "${RED}  ✗ Lựa chọn không hợp lệ. Vui lòng nhập 1, 2 hoặc 3.${NC}"
+            ;;
+    esac
+done
+
+echo ""
+
+# ── Dọn dẹp plugin cũ ────────────────────────────────────────────────────────
 echo -e "${YELLOW}  →${NC} Dọn dẹp plugin cũ..."
 rm -rf "$PLUGIN_DIR"
 rm -rf "$HOST_DIR"
@@ -85,7 +184,13 @@ cat > "$PLUGIN_DIR/INFO" << 'JSON'
 JSON
 cp "$PLUGIN_DIR/INFO" "$HOST_DIR/INFO"
 
-# ── Bật plugin trong host_enabled.conf ───────────────────────────────────────
+# ── Lưu custom API key nếu có ────────────────────────────────────────────────
+if [ -n "$CUSTOM_API_KEY" ]; then
+    echo "$CUSTOM_API_KEY" > "$PLUGIN_DIR/custom_api_key.txt"
+    echo -e "${YELLOW}  →${NC} Đã lưu custom API key"
+fi
+
+# ── Bật plugin ───────────────────────────────────────────────────────────────
 echo -e "${YELLOW}  →${NC} Bật plugin..."
 if ! grep -q "\[fshare-vn\]" "$HOST_ENABLED" 2>/dev/null; then
     echo "" >> "$HOST_ENABLED"
@@ -93,7 +198,7 @@ if ! grep -q "\[fshare-vn\]" "$HOST_ENABLED" 2>/dev/null; then
     echo "enable=1" >> "$HOST_ENABLED"
 fi
 
-# ── Update pyLoad ─────────────────────────────────────────────────────────────
+# ── Cập nhật pyLoad ───────────────────────────────────────────────────────────
 echo -e "${YELLOW}  →${NC} Cập nhật pyLoad plugin..."
 if [ -f "$PYLOAD_HOSTER/FshareVn.py" ]; then
     cp "$PYLOAD_HOSTER/FshareVn.py" "$PYLOAD_HOSTER/FshareVn.py.bak"
@@ -109,19 +214,18 @@ if [ -f "$PYLOAD_ACCOUNT/FshareVn.py" ]; then
     rm -f "$PYLOAD_ACCOUNT/FshareVn.pyc"
 fi
 
-# ── Tắt FshareVn pyLoad mặc định, bật plugin mới ────────────────────────────
+# ── Tắt FshareVn pyLoad mặc định ─────────────────────────────────────────────
 echo -e "${YELLOW}  →${NC} Cập nhật cấu hình pyLoad..."
 if [ -f "$PYLOAD_CONF" ]; then
-    # Tắt plugin FshareVn mặc định của pyLoad
     sed -i '/^FshareVn - "FshareVn":$/{n; s/bool activated : "Activated" = True/bool activated : "Activated" = False/}' "$PYLOAD_CONF"
 fi
 
-# ── Fix owner ────────────────────────────────────────────────────────────────
+# ── Fix owner ─────────────────────────────────────────────────────────────────
 echo -e "${YELLOW}  →${NC} Fix quyền truy cập..."
 chown -R DownloadStation:DownloadStation "$PLUGIN_DIR"
 chmod -R 755 "$PLUGIN_DIR"
 
-# ── Xóa session cache cũ ─────────────────────────────────────────────────────
+# ── Xóa session cache ─────────────────────────────────────────────────────────
 echo -e "${YELLOW}  →${NC} Xóa session cache cũ..."
 rm -rf /tmp/dsm_fshare-vn/
 
@@ -132,6 +236,7 @@ sleep 2
 synopkg start DownloadStation > /dev/null 2>&1
 sleep 2
 
+# ── Footer ────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}╔══════════════════════════════════════════╗${NC}"
 echo -e "${GREEN}║${NC}  ${BOLD}✓ Cài đặt hoàn tất!${NC}                      ${GREEN}║${NC}"

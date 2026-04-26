@@ -2,6 +2,8 @@
 
 Module tích hợp Fshare.vn vào Synology Download Station, cho phép tải file trực tiếp thông qua giao thức kết nối chính thức của Fshare.
 
+> **Lưu ý:** Module chỉ hỗ trợ tài khoản **Fshare VIP**. Tài khoản thường (Free) không được Fshare cấp quyền truy cập API của bên thứ ba. Người dùng tài khoản thường cần được Fshare cấp API key cá nhân riêng để sử dụng.
+
 ---
 
 ## Yêu cầu
@@ -52,11 +54,35 @@ curl -s https://raw.githubusercontent.com/mson-ssh/synology-fshare/main/install.
 
 > Nếu gặp lỗi quyền truy cập, chạy `sudo -i` trước rồi thử lại.
 
-Script sẽ tự động tải plugin, cấu hình đúng và khởi động lại Download Station.
+Script sẽ tự động tải plugin, cấu hình đúng và khởi động lại Download Station. Trong quá trình cài đặt, script sẽ hỏi loại tài khoản:
+
+- Chọn **1** nếu bạn có tài khoản **VIP**
+- Chọn **2** nếu bạn có tài khoản thường và đã được Fshare cấp **API key cá nhân**
+- Chọn **3** để huỷ và xoá toàn bộ plugin đã cài
 
 Sau khi script hoàn tất, mở Download Station → Settings → File Hosting → chọn **Fshare.vn** → Edit → nhập email và mật khẩu Fshare → Verify.
 
 ---
+
+
+---
+
+## API Key
+
+### Tài khoản VIP
+
+Tài khoản VIP sử dụng API key mặc định — không cần thêm bước nào. Chọn **1** khi chạy script cài đặt là xong.
+
+### Tài khoản thường (Free) — API Key cá nhân
+
+Fshare hiện không cấp API key công khai cho người dùng cá nhân. Để sử dụng tài khoản thường, bạn cần liên hệ Fshare để được cấp API key riêng:
+
+1. Gửi email đến **hotro@fshare.vn**
+2. Tiêu đề: `Yêu cầu cấp API key cá nhân`
+3. Nội dung: Nêu rõ mục đích sử dụng (tích hợp Download Station trên Synology NAS)
+4. Đính kèm thông tin tài khoản Fshare của bạn
+
+Sau khi được cấp API key, chọn **2** khi chạy script cài đặt và nhập API key vào khi được hỏi.
 
 ### Cách 2 — Thủ công
 
@@ -104,8 +130,7 @@ Mở Download Station → Settings → File Hosting → chọn **Fshare.vn** →
 | Kết quả | Ý nghĩa |
 |---------|---------|
 | Valid | Tài khoản VIP, sẵn sàng sử dụng |
-| Free user | Tài khoản Free, tốc độ bị giới hạn |
-| Login failed | Sai thông tin đăng nhập hoặc lỗi kết nối |
+| Free user / Login failed | Sai email/mật khẩu, tài khoản không phải VIP, hoặc chưa được cấp API key cá nhân |
 
 ![Hướng dẫn cài đặt](assets/screenshot1.png)
 
@@ -143,6 +168,8 @@ MIT
 # Fshare.vn — Synology Download Station Host Module
 
 A file hosting module that enables Synology Download Station to download files from Fshare.vn using Fshare's official service interface.
+
+> **Note:** This module only supports **Fshare VIP accounts**. Free accounts are not granted API access for third-party applications by Fshare. Free account users need a personal API key issued directly by Fshare.
 
 ---
 
@@ -194,11 +221,35 @@ curl -s https://raw.githubusercontent.com/mson-ssh/synology-fshare/main/install.
 
 > If you encounter a permission error, run `sudo -i` first then try again.
 
-The script will automatically download the plugin, apply the correct configuration, and restart Download Station.
+The script will automatically download the plugin, apply the correct configuration, and restart Download Station. During installation, the script will prompt you to select an account type:
+
+- Select **1** if you have a **VIP** account
+- Select **2** if you have a free account and have been issued a **personal API key** by Fshare
+- Select **3** to cancel and remove any previously installed files
 
 Once complete, open Download Station → Settings → File Hosting → select **Fshare.vn** → Edit → enter your Fshare email and password → Verify.
 
 ---
+
+
+---
+
+## API Key
+
+### VIP Account
+
+VIP accounts use the default API key — no additional steps required. Simply select **1** when running the install script.
+
+### Free Account — Personal API Key
+
+Fshare does not publicly issue API keys to individual users. To use a free account, you need to contact Fshare directly to request a personal API key:
+
+1. Send an email to **hotro@fshare.vn**
+2. Subject: `Request for personal API key`
+3. Body: Clearly state your intended use (integration with Download Station on Synology NAS)
+4. Include your Fshare account information
+
+Once you receive your API key, select **2** when running the install script and enter the key when prompted.
 
 ### Method 2 — Manual
 
@@ -245,9 +296,8 @@ Open Download Station → Settings → File Hosting → select **Fshare.vn** →
 
 | Result | Meaning |
 |--------|---------|
-| Valid | VIP account, ready |
-| Free user | Free account, limited speed |
-| Login failed | Invalid credentials or connection error |
+| Valid | VIP account, ready to use |
+| Free user / Login failed | Incorrect email/password, non-VIP account, or personal API key not yet configured |
 
 ![Installation guide](assets/screenshot1.png)
 
