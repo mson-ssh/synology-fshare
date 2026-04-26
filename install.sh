@@ -18,10 +18,10 @@ NC='\033[0m'
 
 # ── Header ────────────────────────────────────────────────────────────────────
 echo ""
-echo -e "${CYAN}╔══════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║${NC}  ${BOLD}Fshare.vn Plugin Installer${NC}               ${CYAN}║${NC}"
-echo -e "${CYAN}║${NC}  for Synology Download Station            ${CYAN}║${NC}"
-echo -e "${CYAN}╚══════════════════════════════════════════╝${NC}"
+echo -e "${CYAN}+------------------------------------------+${NC}"
+echo -e "${CYAN}|${NC}  ${BOLD}Fshare.vn Plugin Installer${NC}               ${CYAN}|${NC}"
+echo -e "${CYAN}|${NC}  for Synology Download Station            ${CYAN}|${NC}"
+echo -e "${CYAN}+------------------------------------------+${NC}"
 echo ""
 
 # ── Kiểm tra môi trường ───────────────────────────────────────────────────────
@@ -238,9 +238,9 @@ sleep 2
 
 # ── Footer ────────────────────────────────────────────────────────────────────
 echo ""
-echo -e "${GREEN}╔══════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║${NC}  ${BOLD}✓ Cài đặt hoàn tất!${NC}                      ${GREEN}║${NC}"
-echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}"
+echo -e "${GREEN}+------------------------------------------+${NC}"
+echo -e "${GREEN}|${NC}  ${BOLD}[OK] Cai dat hoan tat!${NC}                    ${GREEN}|${NC}"
+echo -e "${GREEN}+------------------------------------------+${NC}"
 echo ""
 echo -e "  ${BOLD}Bước tiếp theo:${NC}"
 echo -e "  ${CYAN}1.${NC} Mở Download Station"

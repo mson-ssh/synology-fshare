@@ -49,7 +49,7 @@ ssh admin@192.168.1.100
 Sau khi kết nối SSH, chạy lệnh sau:
 
 ```bash
-curl -s https://raw.githubusercontent.com/mson-ssh/synology-fshare/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/mson-ssh/synology-fshare/main/install.sh -o /tmp/install_fshare.sh && bash /tmp/install_fshare.sh
 ```
 
 > Nếu gặp lỗi quyền truy cập, chạy `sudo -i` trước rồi thử lại.
@@ -216,7 +216,7 @@ ssh admin@192.168.1.100
 Once connected via SSH, run:
 
 ```bash
-curl -s https://raw.githubusercontent.com/mson-ssh/synology-fshare/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/mson-ssh/synology-fshare/main/install.sh -o /tmp/install_fshare.sh && bash /tmp/install_fshare.sh
 ```
 
 > If you encounter a permission error, run `sudo -i` first then try again.
