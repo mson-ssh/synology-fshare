@@ -20,7 +20,7 @@ class SynoFileHostingFshareVn
     const API_USERAGENT = 'pyLoad-B1RS5N';
 
     // ── Session cache (lưu trong /tmp/ — quy định của Synology) ─────────
-    const SESSION_DIR   = '/tmp/dsm_fsharevn/';
+    const SESSION_DIR   = '/tmp/dsm_fshare-vn/';
 
     // ════════════════════════════════════════════════════════════════════
     // Constructor — DS truyền vào đủ 4 tham số

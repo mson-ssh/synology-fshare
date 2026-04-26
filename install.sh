@@ -1,8 +1,8 @@
 #!/bin/bash
 
 REPO="https://raw.githubusercontent.com/mson-ssh/synology-fshare/main"
-PLUGIN_DIR="/var/packages/DownloadStation/etc/download/userhosts/fsharevn"
-HOST_DIR="/var/packages/DownloadStation/target/hostscript/hosts/fsharevn"
+PLUGIN_DIR="/var/packages/DownloadStation/etc/download/userhosts/fshare-vn"
+HOST_DIR="/var/packages/DownloadStation/target/hostscript/hosts/fshare-vn"
 PYLOAD_HOSTER="/var/packages/DownloadStation/target/pyload/module/plugins/hoster"
 PYLOAD_ACCOUNT="/var/packages/DownloadStation/target/pyload/module/plugins/accounts"
 PYLOAD_CONF="/var/packages/DownloadStation/etc/pyload/plugin.conf"
@@ -34,6 +34,8 @@ echo ""
 echo "[*] Dọn dẹp plugin cũ..."
 rm -rf "$PLUGIN_DIR"
 rm -rf "$HOST_DIR"
+rm -rf "/var/packages/DownloadStation/etc/download/userhosts/fsharevn"
+rm -rf "/var/packages/DownloadStation/target/hostscript/hosts/fsharevn"
 
 # ── Tạo thư mục ──────────────────────────────────────────────────────────────
 echo "[*] Tạo thư mục plugin..."
@@ -54,7 +56,7 @@ cp "$PLUGIN_DIR/host.php" "$HOST_DIR/fsharevn.php"
 echo "[*] Ghi INFO..."
 cat > "$PLUGIN_DIR/INFO" << 'JSON'
 {
-    "name":                  "fsharevn",
+    "name":                  "fshare-vn",
     "hostprefix":            "fshare.vn,www.fshare.vn",
     "displayname":           "Fshare.vn",
     "version":               "1.0",
@@ -75,9 +77,9 @@ cp "$PLUGIN_DIR/INFO" "$HOST_DIR/INFO"
 
 # ── Bật plugin trong host_enabled.conf ───────────────────────────────────────
 echo "[*] Bật plugin..."
-if ! grep -q "\[fsharevn\]" "$HOST_ENABLED" 2>/dev/null; then
+if ! grep -q "\[fshare-vn\]" "$HOST_ENABLED" 2>/dev/null; then
     echo "" >> "$HOST_ENABLED"
-    echo "[fsharevn]" >> "$HOST_ENABLED"
+    echo "[fshare-vn]" >> "$HOST_ENABLED"
     echo "enable=1" >> "$HOST_ENABLED"
 fi
 
