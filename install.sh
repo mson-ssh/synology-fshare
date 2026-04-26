@@ -8,52 +8,62 @@ PYLOAD_ACCOUNT="/var/packages/DownloadStation/target/pyload/module/plugins/accou
 PYLOAD_CONF="/var/packages/DownloadStation/etc/pyload/plugin.conf"
 HOST_ENABLED="/var/packages/DownloadStation/etc/download/host_enabled.conf"
 
-echo "========================================"
-echo "  Fshare.vn Plugin Installer"
-echo "  for Synology Download Station"
-echo "========================================"
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+echo ""
+echo -e "${CYAN}╔══════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}║${NC}  ${BOLD}Fshare.vn Plugin Installer${NC}               ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}  for Synology Download Station            ${CYAN}║${NC}"
+echo -e "${CYAN}╚══════════════════════════════════════════╝${NC}"
+echo ""
 
 if [ ! -f /etc/synoinfo.conf ]; then
-    echo "[!] Script này chỉ chạy trên Synology NAS."
+    echo -e "${RED}  ✗ Script này chỉ chạy trên Synology NAS.${NC}"
     exit 1
 fi
 
 if [ ! -d /volume1/@appstore/DownloadStation ]; then
-    echo "[!] Download Station chưa được cài đặt."
+    echo -e "${RED}  ✗ Download Station chưa được cài đặt.${NC}"
     exit 1
 fi
 
 if ! command -v curl &> /dev/null; then
-    echo "[!] curl không có sẵn trên hệ thống."
+    echo -e "${RED}  ✗ curl không có sẵn trên hệ thống.${NC}"
     exit 1
 fi
 
 echo ""
 
 # ── Xóa plugin cũ nếu có ─────────────────────────────────────────────────────
-echo "[*] Dọn dẹp plugin cũ..."
+echo -e "${YELLOW}  →${NC} Dọn dẹp plugin cũ..."
 rm -rf "$PLUGIN_DIR"
 rm -rf "$HOST_DIR"
 rm -rf "/var/packages/DownloadStation/etc/download/userhosts/fsharevn"
 rm -rf "/var/packages/DownloadStation/target/hostscript/hosts/fsharevn"
 
 # ── Tạo thư mục ──────────────────────────────────────────────────────────────
-echo "[*] Tạo thư mục plugin..."
+echo -e "${YELLOW}  →${NC} Tạo thư mục plugin..."
 mkdir -p "$PLUGIN_DIR"
 mkdir -p "$HOST_DIR"
 
 # ── Tải host.php ─────────────────────────────────────────────────────────────
-echo "[*] Tải host.php..."
+echo -e "${YELLOW}  →${NC} Tải host.php..."
 curl -fsSL "$REPO/host.php" -o "$PLUGIN_DIR/host.php"
 if [ $? -ne 0 ]; then
-    echo "[!] Tải host.php thất bại."
+    echo -e "${RED}  ✗ Tải host.php thất bại.${NC}"
     exit 1
 fi
 cp "$PLUGIN_DIR/host.php" "$HOST_DIR/host.php"
 cp "$PLUGIN_DIR/host.php" "$HOST_DIR/fsharevn.php"
 
 # ── Ghi INFO ─────────────────────────────────────────────────────────────────
-echo "[*] Ghi INFO..."
+echo -e "${YELLOW}  →${NC} Ghi INFO..."
 cat > "$PLUGIN_DIR/INFO" << 'JSON'
 {
     "name":                  "fshare-vn",
@@ -76,7 +86,7 @@ JSON
 cp "$PLUGIN_DIR/INFO" "$HOST_DIR/INFO"
 
 # ── Bật plugin trong host_enabled.conf ───────────────────────────────────────
-echo "[*] Bật plugin..."
+echo -e "${YELLOW}  →${NC} Bật plugin..."
 if ! grep -q "\[fshare-vn\]" "$HOST_ENABLED" 2>/dev/null; then
     echo "" >> "$HOST_ENABLED"
     echo "[fshare-vn]" >> "$HOST_ENABLED"
@@ -84,7 +94,7 @@ if ! grep -q "\[fshare-vn\]" "$HOST_ENABLED" 2>/dev/null; then
 fi
 
 # ── Update pyLoad ─────────────────────────────────────────────────────────────
-echo "[*] Cập nhật pyLoad plugin..."
+echo -e "${YELLOW}  →${NC} Cập nhật pyLoad plugin..."
 if [ -f "$PYLOAD_HOSTER/FshareVn.py" ]; then
     cp "$PYLOAD_HOSTER/FshareVn.py" "$PYLOAD_HOSTER/FshareVn.py.bak"
     sed -i 's/L2S7R6ZMagggC5wWkQhX2+aDi467PPuftWUMRFSn/dMnqMMZMUnN5YpvKENaEhdQQ5jxDqddt/g' "$PYLOAD_HOSTER/FshareVn.py"
@@ -100,33 +110,36 @@ if [ -f "$PYLOAD_ACCOUNT/FshareVn.py" ]; then
 fi
 
 # ── Bật FshareVn trong pyLoad config ─────────────────────────────────────────
-echo "[*] Bật FshareVn trong pyLoad..."
+echo -e "${YELLOW}  →${NC} Bật FshareVn trong pyLoad..."
 if [ -f "$PYLOAD_CONF" ]; then
     sed -i '/FshareVn - "FshareVn":/{n; s/= False/= True/}' "$PYLOAD_CONF"
 fi
 
 # ── Fix owner ────────────────────────────────────────────────────────────────
-echo "[*] Fix quyền truy cập..."
+echo -e "${YELLOW}  →${NC} Fix quyền truy cập..."
 chown -R DownloadStation:DownloadStation "$PLUGIN_DIR"
 chmod -R 755 "$PLUGIN_DIR"
 
 # ── Xóa session cache cũ ─────────────────────────────────────────────────────
-echo "[*] Xóa session cache cũ..."
+echo -e "${YELLOW}  →${NC} Xóa session cache cũ..."
 rm -rf /tmp/dsm_fshare-vn/
 
 # ── Restart DS ────────────────────────────────────────────────────────────────
-echo "[*] Restart Download Station..."
+echo -e "${YELLOW}  →${NC} Restart Download Station..."
 synopkg stop DownloadStation > /dev/null 2>&1
 sleep 2
 synopkg start DownloadStation > /dev/null 2>&1
 sleep 2
 
 echo ""
-echo "========================================"
-echo "  [+] Cài đặt hoàn tất!"
+echo -e "${GREEN}╔══════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║${NC}  ${BOLD}✓ Cài đặt hoàn tất!${NC}                      ${GREEN}║${NC}"
+echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}"
 echo ""
-echo "  Bước tiếp theo:"
-echo "  1. Mở Download Station"
-echo "  2. Settings > File Hosting > Fshare.vn"
-echo "  3. Edit > nhập email + password > Verify"
-echo "========================================"
+echo -e "  ${BOLD}Bước tiếp theo:${NC}"
+echo -e "  ${CYAN}1.${NC} Mở Download Station"
+echo -e "  ${CYAN}2.${NC} Settings → File Hosting → ${BOLD}Fshare.vn${NC}"
+echo -e "  ${CYAN}3.${NC} Edit → nhập email + password → Verify"
+echo ""
+echo -e "  ${BOLD}Enjoy! <3${NC}"
+echo ""
