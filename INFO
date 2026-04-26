@@ -1,10 +1,17 @@
 {
-    "name":           "fsharevn",
-    "hostprefix":     "fshare.vn,www.fshare.vn",
-    "displayname":    "Fshare.vn",
-    "version":        "",
-    "authentication": "yes",
-    "module":         "host.php",
-    "class":          "SynoFileHostingFshareVn",
-    "description":    "Update 04.2026"
+    "name":                  "fsharevn",
+    "hostprefix":            "fshare.vn,www.fshare.vn",
+    "displayname":           "Fshare.vn",
+    "version":               "1.0",
+    "majorversion":          "3",
+    "minorversion":          "4",
+    "minfirmware":           "2600",
+    "min_dl_major_version":  "3",
+    "min_dl_minor_version":  "4",
+    "min_dl_build":          "2600",
+    "authentication":        "yes",
+    "module":                "host.php",
+    "class":                 "SynoFileHostingFshareVn",
+    "supporttasklist":       "yes",
+    "description":           "Update 04.2026"
 }

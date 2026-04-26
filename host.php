@@ -55,7 +55,7 @@ class SynoFileHostingFshareVn
         $body = $this->httpPost(
             self::API_URL . 'session/download',
             $payload,
-            ['Cookie: session_id=' . urlencode($session['session_id'])]
+            $session['session_id']
         );
 
         if ($body === false) {
@@ -75,7 +75,7 @@ class SynoFileHostingFshareVn
             $body = $this->httpPost(
                 self::API_URL . 'session/download',
                 $payload,
-                ['Cookie: session_id=' . urlencode($session['session_id'])]
+                $session['session_id']
             );
 
             if ($body === false) {
@@ -93,7 +93,25 @@ class SynoFileHostingFshareVn
             return ERR_UNKNOWN;
         }
 
-        return [DOWNLOAD_URL => $data['location']];
+        // Lấy tên file thật từ URL hoặc từ response
+        $filename = '';
+        if (!empty($data['name'])) {
+            $filename = $data['name'];
+        } else {
+            // Parse tên file từ direct URL
+            $path     = parse_url($data['location'], PHP_URL_PATH);
+            $parts    = explode('/', $path);
+            $filename = urldecode(end($parts));
+            // Bỏ query string nếu có
+            $filename = explode('?', $filename)[0];
+        }
+
+        $result = [DOWNLOAD_URL => $data['location']];
+        if (!empty($filename)) {
+            $result[DOWNLOAD_FILENAME] = $filename;
+        }
+
+        return $result;
     }
 
     // ════════════════════════════════════════════════════════════════════
@@ -115,7 +133,7 @@ class SynoFileHostingFshareVn
         // Lấy thông tin user để kiểm tra VIP
         $body = $this->httpGet(
             self::API_URL . 'user/get',
-            ['Cookie: session_id=' . urlencode($session['session_id'])]
+            $session['session_id']
         );
 
         if ($body === false) {
@@ -189,7 +207,7 @@ class SynoFileHostingFshareVn
     {
         $body = $this->httpGet(
             self::API_URL . 'user/get',
-            ['Cookie: session_id=' . urlencode($sessionId)]
+            $sessionId
         );
         if ($body === false) return false;
 
@@ -232,12 +250,12 @@ class SynoFileHostingFshareVn
     // PRIVATE: HTTP helpers (chỉ dùng curl — quy định Synology)
     // ════════════════════════════════════════════════════════════════════
 
-    private function httpPost($url, $payload, array $extraHeaders = [])
+    private function httpPost($url, $payload, $sessionId = null)
     {
-        $headers = array_merge([
+        $headers = [
             'Content-Type: application/json',
             'Accept: application/json',
-        ], $extraHeaders);
+        ];
 
         $ch = curl_init($url);
         curl_setopt_array($ch, [
@@ -248,8 +266,12 @@ class SynoFileHostingFshareVn
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_TIMEOUT        => 30,
-            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_FOLLOWLOCATION => false,
         ]);
+
+        if ($sessionId) {
+            curl_setopt($ch, CURLOPT_COOKIE, 'session_id=' . urlencode($sessionId));
+        }
 
         $body = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -258,21 +280,21 @@ class SynoFileHostingFshareVn
         return ($code >= 200 && $code < 300 && $body !== false) ? $body : false;
     }
 
-    private function httpGet($url, array $extraHeaders = [])
+    private function httpGet($url, $sessionId = null)
     {
-        $headers = array_merge([
-            'Accept: application/json',
-        ], $extraHeaders);
-
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_HTTPGET        => true,
-            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_HTTPHEADER     => ['Accept: application/json'],
             CURLOPT_USERAGENT      => self::API_USERAGENT,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_TIMEOUT        => 30,
         ]);
+
+        if ($sessionId) {
+            curl_setopt($ch, CURLOPT_COOKIE, 'session_id=' . urlencode($sessionId));
+        }
 
         $body = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
