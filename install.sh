@@ -226,11 +226,15 @@ fi
 echo -e "${YELLOW}  →${NC} Fix quyền truy cập..."
 chown -R DownloadStation:DownloadStation "$PLUGIN_DIR"
 chmod 755 "$PLUGIN_DIR"
-chmod 644 "$PLUGIN_DIR"/*
+chmod 644 "$PLUGIN_DIR/INFO"
+chmod 755 "$PLUGIN_DIR/host.php"
+[ -f "$PLUGIN_DIR/custom_api_key.txt" ] && chmod 644 "$PLUGIN_DIR/custom_api_key.txt"
 
 chown -R DownloadStation:DownloadStation "$HOST_DIR"
 chmod 755 "$HOST_DIR"
-chmod 644 "$HOST_DIR"/*
+chmod 755 "$HOST_DIR/host.php"
+chmod 755 "$HOST_DIR/fsharevn.php"
+chmod 644 "$HOST_DIR/INFO"
 
 # ── Xóa session cache ─────────────────────────────────────────────────────────
 echo -e "${YELLOW}  →${NC} Xóa session cache cũ..."
