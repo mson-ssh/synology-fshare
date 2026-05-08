@@ -30,7 +30,7 @@ if [ ! -f /etc/synoinfo.conf ]; then
     exit 1
 fi
 
-if [ ! -d /var/packages/DownloadStation ]; then
+if [ ! -d /volume1/@appstore/DownloadStation ]; then
     echo -e "${RED}  ✗ Download Station chưa được cài đặt.${NC}"
     exit 1
 fi
@@ -143,7 +143,7 @@ echo PHP_EOL;
             grep -i "fshare\|hostscript\|Cannot\|Verify" /var/log/messages 2>/dev/null | tail -10 || echo "  Không có log"
             echo ""
             echo -e "${CYAN}--------------------------------------------${NC}"
-            echo -e "  ${BOLD}Debug hoàn tất!${NC}"
+            echo -e "  Debug hoàn tất!"
             echo -e "${CYAN}--------------------------------------------${NC}"
             echo ""
             exit 0
@@ -290,12 +290,6 @@ fi
 echo -e "${YELLOW}  →${NC} Fix quyền truy cập..."
 chown -R DownloadStation:DownloadStation "$PLUGIN_DIR"
 chmod -R 755 "$PLUGIN_DIR"
-
-chown -R DownloadStation:DownloadStation "$HOST_DIR"
-chmod 755 "$HOST_DIR"
-chmod 755 "$HOST_DIR/host.php" 2>/dev/null
-chmod 755 "$HOST_DIR/fsharevn.php" 2>/dev/null
-chmod 644 "$HOST_DIR/INFO" 2>/dev/null
 
 # ── Xóa session cache ─────────────────────────────────────────────────────────
 echo -e "${YELLOW}  →${NC} Xóa session cache cũ..."
