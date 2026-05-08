@@ -143,7 +143,7 @@ while true; do
             read -s -p "  Password Fshare: " DEBUG_PASS
             echo ""
             echo ""
-            echo -e "  ${YELLOW}→${NC} Đang test..."
+            echo -e "  ${YELLOW}→${NC} Test với user root..."
             PHP_RESULT=$(php -d error_reporting=E_ALL -r "
 define('USER_IS_PREMIUM', 1);
 define('USER_IS_FREE', 2);
@@ -157,7 +157,23 @@ elseif (\$r === USER_IS_FREE)     echo 'RESULT: USER_IS_FREE (Free account)';
 elseif (\$r === LOGIN_FAIL)       echo 'RESULT: LOGIN_FAIL (Sai tk/mk hoặc API lỗi)';
 else                              echo 'RESULT: UNKNOWN (' . \$r . ')';
 " 2>&1)
-            echo -e "  $PHP_RESULT"
+            echo -e "  root: $PHP_RESULT"
+            echo ""
+            echo -e "  ${YELLOW}→${NC} Test với user DownloadStation..."
+            PHP_RESULT_DS=$(sudo -u DownloadStation php -d open_basedir="" -d error_reporting=E_ALL -r "
+define('USER_IS_PREMIUM', 1);
+define('USER_IS_FREE', 2);
+define('LOGIN_FAIL', -1);
+define('ERR_REQUIRED_PREMIUM', -2);
+include '$PLUGIN_DIR/host.php';
+\$obj = new SynoFileHostingFshareVn('', '$DEBUG_EMAIL', '$DEBUG_PASS', []);
+\$r = \$obj->Verify(true);
+if (\$r === USER_IS_PREMIUM)      echo 'RESULT: USER_IS_PREMIUM (VIP OK)';
+elseif (\$r === USER_IS_FREE)     echo 'RESULT: USER_IS_FREE (Free account)';
+elseif (\$r === LOGIN_FAIL)       echo 'RESULT: LOGIN_FAIL (Sai tk/mk hoặc API lỗi)';
+else                              echo 'RESULT: UNKNOWN (' . \$r . ')';
+" 2>&1)
+            echo -e "  DownloadStation: $PHP_RESULT_DS"
             echo ""
 
             # 6. Log DS gần nhất
