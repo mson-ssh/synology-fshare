@@ -65,8 +65,6 @@ Sau khi script hoàn tất, mở Download Station → Settings → File Hosting 
 ---
 
 
-![Chọn loại tài khoản](assets/screenshot3.png)
-
 ---
 
 ## API Key
@@ -233,8 +231,6 @@ Once complete, open Download Station → Settings → File Hosting → select **
 
 ---
 
-
-![Account type selection](assets/screenshot3.png)
 
 ---
 
