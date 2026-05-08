@@ -18,6 +18,7 @@ class SynoFileHostingFshareVn
     const API_URL       = 'https://api.fshare.vn/api/';
     const API_KEY       = 'dMnqMMZMUnN5YpvKENaEhdQQ5jxDqddt';
     const API_USERAGENT = 'pyLoad-B1RS5N';
+    const CUSTOM_API_KEY_FILE = '/var/packages/DownloadStation/etc/download/userhosts/fshare-vn/custom_api_key.txt';
 
     // ── Session cache (lưu trong /tmp/ — quy định của Synology) ─────────
     const SESSION_DIR   = '/tmp/dsm_fshare-vn/';
@@ -41,6 +42,9 @@ class SynoFileHostingFshareVn
     {
         // Lấy session (từ cache hoặc login mới)
         $session = $this->getSession();
+        if ($session === 'VIP_ONLY') {
+            return ERR_REQUIRED_PREMIUM;
+        }
         if (!$session) {
             return LOGIN_FAIL;
         }
@@ -135,6 +139,11 @@ class SynoFileHostingFshareVn
         }
 
         $session = $this->login();
+        if ($session === 'VIP_ONLY') {
+            // Trả về USER_IS_FREE thay vì LOGIN_FAIL
+            // DS sẽ hiện "Free user" thay vì "Invalid account"
+            return USER_IS_FREE;
+        }
         if (!$session) {
             return LOGIN_FAIL;
         }
@@ -178,7 +187,8 @@ class SynoFileHostingFshareVn
             }
             $this->clearSession();
         }
-        return $this->login();
+        $result = $this->login();
+        return $result;
     }
 
     /**
@@ -186,8 +196,17 @@ class SynoFileHostingFshareVn
      */
     private function login()
     {
+        // Dùng custom API key nếu có
+        $apiKey = self::API_KEY;
+        if (file_exists(self::CUSTOM_API_KEY_FILE)) {
+            $customKey = trim(file_get_contents(self::CUSTOM_API_KEY_FILE));
+            if (!empty($customKey)) {
+                $apiKey = $customKey;
+            }
+        }
+
         $payload = json_encode([
-            'app_key'    => self::API_KEY,
+            'app_key'    => $apiKey,
             'user_email' => $this->Username,
             'password'   => $this->Password,
         ]);
@@ -196,7 +215,14 @@ class SynoFileHostingFshareVn
         if ($body === false) return false;
 
         $data = json_decode($body, true);
-        if (empty($data) || (int)($data['code'] ?? 0) !== 200) {
+        $code = (int)($data['code'] ?? 0);
+
+        if ($code === 403) {
+            // Fshare trả về 403 = tài khoản không phải VIP
+            return 'VIP_ONLY';
+        }
+
+        if (empty($data) || $code !== 200) {
             return false;
         }
 
