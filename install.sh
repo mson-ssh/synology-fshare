@@ -45,11 +45,12 @@ echo -e "  ${BOLD}Chọn loại tài khoản Fshare:${NC}"
 echo ""
 echo -e "  ${CYAN}1.${NC} Fshare VIP Account ${BOLD}(Tài khoản VIP)${NC}"
 echo -e "  ${CYAN}2.${NC} Fshare Account API Personal ${BOLD}(Tài khoản thường được cấp API)${NC}"
-echo -e "  ${CYAN}3.${NC} Huỷ cài đặt"
+echo -e "  ${CYAN}3.${NC} Debug"
+echo -e "  ${CYAN}4.${NC} Huỷ cài đặt"
 echo ""
 
 while true; do
-    read -p "  Nhập lựa chọn [1/2/3]: " ACCOUNT_TYPE
+    read -p "  Nhập lựa chọn [1/2/3/4]: " ACCOUNT_TYPE
     case "$ACCOUNT_TYPE" in
         1)
             echo ""
@@ -83,6 +84,94 @@ while true; do
             break
             ;;
         3)
+            echo ""
+            echo -e "${CYAN}--------------------------------------------${NC}"
+            echo -e "  ${BOLD}Debug Plugin Fshare.vn${NC}"
+            echo -e "${CYAN}--------------------------------------------${NC}"
+            echo ""
+
+            # 1. Kiểm tra thư mục và permission
+            echo -e "  ${BOLD}[1] Kiểm tra thư mục và permission:${NC}"
+            echo ""
+            if [ -d "$PLUGIN_DIR" ]; then
+                ls -la "$PLUGIN_DIR"
+            else
+                echo -e "  ${RED}✗ Không tìm thấy: $PLUGIN_DIR${NC}"
+            fi
+            echo ""
+            if [ -d "$HOST_DIR" ]; then
+                ls -la "$HOST_DIR"
+            else
+                echo -e "  ${RED}✗ Không tìm thấy: $HOST_DIR${NC}"
+            fi
+            echo ""
+
+            # 2. Kiểm tra nội dung INFO
+            echo -e "  ${BOLD}[2] Nội dung INFO:${NC}"
+            if [ -f "$PLUGIN_DIR/INFO" ]; then
+                cat "$PLUGIN_DIR/INFO"
+            else
+                echo -e "  ${RED}✗ Không tìm thấy INFO${NC}"
+            fi
+            echo ""
+
+            # 3. Kiểm tra session cache
+            echo -e "  ${BOLD}[3] Session cache:${NC}"
+            if [ -d "/tmp/dsm_fshare-vn/" ]; then
+                ls -la /tmp/dsm_fshare-vn/
+                echo ""
+                echo -e "  Nội dung session:"
+                cat /tmp/dsm_fshare-vn/*.json 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "  (Không đọc được)"
+            else
+                echo -e "  ${YELLOW}  Không có session cache${NC}"
+            fi
+            echo ""
+
+            # 4. Kiểm tra pyLoad config
+            echo -e "  ${BOLD}[4] Trạng thái pyLoad FshareVn:${NC}"
+            if [ -f "$PYLOAD_CONF" ]; then
+                grep -A2 'FshareVn - "FshareVn"' "$PYLOAD_CONF" || echo "  (Không tìm thấy)"
+            else
+                echo -e "  ${YELLOW}  Không tìm thấy pyload config${NC}"
+            fi
+            echo ""
+
+            # 5. Test PHP Verify
+            echo -e "  ${BOLD}[5] Test PHP Verify (nhập thông tin tài khoản):${NC}"
+            echo ""
+            read -p "  Email Fshare: " DEBUG_EMAIL
+            read -s -p "  Password Fshare: " DEBUG_PASS
+            echo ""
+            echo ""
+            echo -e "  ${YELLOW}→${NC} Đang test..."
+            PHP_RESULT=$(php -d error_reporting=E_ALL -r "
+define('USER_IS_PREMIUM', 1);
+define('USER_IS_FREE', 2);
+define('LOGIN_FAIL', -1);
+define('ERR_REQUIRED_PREMIUM', -2);
+include '$PLUGIN_DIR/host.php';
+\$obj = new SynoFileHostingFshareVn('', '$DEBUG_EMAIL', '$DEBUG_PASS', []);
+\$r = \$obj->Verify(true);
+if (\$r === USER_IS_PREMIUM)      echo 'RESULT: USER_IS_PREMIUM (VIP OK)';
+elseif (\$r === USER_IS_FREE)     echo 'RESULT: USER_IS_FREE (Free account)';
+elseif (\$r === LOGIN_FAIL)       echo 'RESULT: LOGIN_FAIL (Sai tk/mk hoặc API lỗi)';
+else                              echo 'RESULT: UNKNOWN (' . \$r . ')';
+" 2>&1)
+            echo -e "  $PHP_RESULT"
+            echo ""
+
+            # 6. Log DS gần nhất
+            echo -e "  ${BOLD}[6] Log DS (10 dòng gần nhất liên quan Fshare):${NC}"
+            grep -i "fshare\|hostscript\|Cannot\|Verify" /var/log/messages 2>/dev/null | tail -10 || echo "  (Không có log)"
+            echo ""
+
+            echo -e "${CYAN}--------------------------------------------${NC}"
+            echo -e "  ${BOLD}Debug hoàn tất!${NC}"
+            echo -e "${CYAN}--------------------------------------------${NC}"
+            echo ""
+            exit 0
+            ;;
+        4)
             echo ""
             echo -e "  ${RED}  Bạn có chắc muốn huỷ và xoá toàn bộ plugin đã cài không?${NC}"
             read -p "  Xác nhận [y/N]: " CONFIRM_UNINSTALL
@@ -132,7 +221,7 @@ while true; do
             fi
             ;;
         *)
-            echo -e "${RED}  ✗ Lựa chọn không hợp lệ. Vui lòng nhập 1, 2 hoặc 3.${NC}"
+            echo -e "${RED}  ✗ Lựa chọn không hợp lệ. Vui lòng nhập 1, 2, 3 hoặc 4.${NC}"
             ;;
     esac
 done
