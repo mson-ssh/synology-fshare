@@ -45,12 +45,11 @@ echo -e "  ${BOLD}Chọn loại tài khoản Fshare:${NC}"
 echo ""
 echo -e "  ${CYAN}1.${NC} Fshare VIP Account ${BOLD}(Tài khoản VIP)${NC}"
 echo -e "  ${CYAN}2.${NC} Fshare Account API Personal ${BOLD}(Tài khoản thường được cấp API)${NC}"
-echo -e "  ${CYAN}3.${NC} Debug"
-echo -e "  ${CYAN}4.${NC} Huỷ cài đặt"
+echo -e "  ${CYAN}3.${NC} Huỷ cài đặt"
 echo ""
 
 while true; do
-    read -p "  Nhập lựa chọn [1/2/3/4]: " ACCOUNT_TYPE
+    read -p "  Nhập lựa chọn [1/2/3]: " ACCOUNT_TYPE
     case "$ACCOUNT_TYPE" in
         1)
             echo ""
@@ -84,71 +83,6 @@ while true; do
             break
             ;;
         3)
-            echo ""
-            echo -e "${CYAN}--------------------------------------------${NC}"
-            echo -e "  ${BOLD}Debug Plugin Fshare.vn${NC}"
-            echo -e "${CYAN}--------------------------------------------${NC}"
-            echo ""
-            echo -e "  ${BOLD}[1] Permission:${NC}"
-            ls -la "$PLUGIN_DIR" 2>/dev/null || echo "  ✗ Không tìm thấy PLUGIN_DIR"
-            echo ""
-            ls -la "$HOST_DIR" 2>/dev/null || echo "  ✗ Không tìm thấy HOST_DIR"
-            echo ""
-            echo -e "  ${BOLD}[2] INFO:${NC}"
-            cat "$PLUGIN_DIR/INFO" 2>/dev/null || echo "  ✗ Không có INFO"
-            echo ""
-            echo -e "  ${BOLD}[3] Session cache:${NC}"
-            ls -la /tmp/dsm_fshare-vn/ 2>/dev/null || echo "  Không có cache"
-            echo ""
-            echo -e "  ${BOLD}[4] pyLoad FshareVn:${NC}"
-            grep -A2 'FshareVn - "FshareVn"' "$PYLOAD_CONF" 2>/dev/null || echo "  Không tìm thấy"
-            echo ""
-            echo -e "  ${BOLD}[5] Test PHP Verify:${NC}"
-            echo ""
-            read -p "  Email Fshare: " DEBUG_EMAIL
-            read -s -p "  Password Fshare: " DEBUG_PASS
-            echo ""
-            echo ""
-            echo -e "  ${YELLOW}→${NC} Test với user root..."
-            php -d error_reporting=E_ALL -r "
-define('USER_IS_PREMIUM', 1); define('USER_IS_FREE', 2);
-define('LOGIN_FAIL', -1); define('ERR_REQUIRED_PREMIUM', -2);
-include '$PLUGIN_DIR/host.php';
-\$obj = new SynoFileHostingFshareVn('', '$DEBUG_EMAIL', '$DEBUG_PASS', []);
-\$r = \$obj->Verify(true);
-echo '  root: ';
-if (\$r===1) echo 'USER_IS_PREMIUM (VIP OK)';
-elseif (\$r===2) echo 'USER_IS_FREE';
-elseif (\$r===-1) echo 'LOGIN_FAIL';
-else echo 'UNKNOWN('.\$r.')';
-echo PHP_EOL;
-" 2>&1
-            echo ""
-            echo -e "  ${YELLOW}→${NC} Test với user DownloadStation..."
-            sudo -u DownloadStation php -d open_basedir="" -d error_reporting=E_ALL -r "
-define('USER_IS_PREMIUM', 1); define('USER_IS_FREE', 2);
-define('LOGIN_FAIL', -1); define('ERR_REQUIRED_PREMIUM', -2);
-include '$PLUGIN_DIR/host.php';
-\$obj = new SynoFileHostingFshareVn('', '$DEBUG_EMAIL', '$DEBUG_PASS', []);
-\$r = \$obj->Verify(true);
-echo '  DownloadStation: ';
-if (\$r===1) echo 'USER_IS_PREMIUM (VIP OK)';
-elseif (\$r===2) echo 'USER_IS_FREE';
-elseif (\$r===-1) echo 'LOGIN_FAIL';
-else echo 'UNKNOWN('.\$r.')';
-echo PHP_EOL;
-" 2>&1
-            echo ""
-            echo -e "  ${BOLD}[6] Log DS gần nhất:${NC}"
-            grep -i "fshare\|hostscript\|Cannot\|Verify" /var/log/messages 2>/dev/null | tail -10 || echo "  Không có log"
-            echo ""
-            echo -e "${CYAN}--------------------------------------------${NC}"
-            echo -e "  Debug hoàn tất!"
-            echo -e "${CYAN}--------------------------------------------${NC}"
-            echo ""
-            exit 0
-            ;;
-        4)
             echo ""
             echo -e "  ${RED}  Bạn có chắc muốn huỷ và xoá toàn bộ plugin đã cài không?${NC}"
             read -p "  Xác nhận [y/N]: " CONFIRM_UNINSTALL
@@ -198,7 +132,7 @@ echo PHP_EOL;
             fi
             ;;
         *)
-            echo -e "${RED}  ✗ Lựa chọn không hợp lệ. Vui lòng nhập 1, 2, 3 hoặc 4.${NC}"
+            echo -e "${RED}  ✗ Lựa chọn không hợp lệ. Vui lòng nhập 1, 2 hoặc 3.${NC}"
             ;;
     esac
 done
