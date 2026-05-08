@@ -236,10 +236,6 @@ chmod 755 "$HOST_DIR/host.php"
 chmod 755 "$HOST_DIR/fsharevn.php"
 chmod 644 "$HOST_DIR/INFO"
 
-# ── Xóa session cache ─────────────────────────────────────────────────────────
-echo -e "${YELLOW}  →${NC} Xóa session cache cũ..."
-rm -rf /tmp/dsm_fshare-vn/
-
 # ── Restart DS ────────────────────────────────────────────────────────────────
 echo -e "${YELLOW}  →${NC} Restart Download Station..."
 synopkg stop DownloadStation > /dev/null 2>&1
