@@ -54,13 +54,39 @@ curl -fsSL https://raw.githubusercontent.com/mson-ssh/synology-fshare/main/insta
 
 > Nếu gặp lỗi quyền truy cập, chạy `sudo -i` trước rồi thử lại.
 
-Script sẽ tự động tải plugin, cấu hình đúng và khởi động lại Download Station. Trong quá trình cài đặt, script sẽ hỏi loại tài khoản:
+Script sẽ tự động tải plugin, cấu hình đúng và khởi động lại Download Station. Trong quá trình cài đặt, menu sẽ hiển thị bằng tiếng Anh, còn nội dung hướng dẫn cài đặt vẫn giữ tiếng Việt.
 
 - Chọn **1** nếu bạn có tài khoản **VIP**
 - Chọn **2** nếu bạn có tài khoản thường và đã được Fshare cấp **API key cá nhân**
-- Chọn **3** để huỷ và xoá toàn bộ plugin đã cài
+- Chọn **3** để kiểm tra môi trường hệ thống
+- Chọn **4** để kiểm tra trạng thái plugin hiện tại
+- Chọn **5** để cài đè / sửa lỗi plugin
+- Chọn **6** để gỡ plugin
+- Chọn **0** để thoát
 
 Sau khi script hoàn tất, mở Download Station → Settings → File Hosting → chọn **Fshare.vn** → Edit → nhập email và mật khẩu Fshare → Verify.
+
+### Post-install verification
+
+Sau khi cài xong, trạng thái mong muốn trong **Download Station → Settings → File Hosting** là:
+
+- Host Fshare cũ của Synology / pyLoad vẫn có thể còn xuất hiện, nhưng ở trạng thái **Deactive**
+- Host Fshare do script cài đặt phải ở trạng thái **Active**
+
+Kiểm tra nhanh:
+
+1. Mở **Download Station** → **Settings** → **File Hosting**
+2. Xác nhận dòng Fshare cũ là **Deactive**
+3. Xác nhận dòng host custom `fshare-vn` là **Active**
+4. Chọn dòng host custom → **Edit** → nhập email + password → **Verify**
+5. Dán thử một link `https://www.fshare.vn/file/XXXXXXXXXX` để kiểm tra tải thực tế
+
+Nếu file đã được cài nhưng host mới không hoạt động, hãy kiểm tra thêm quyền truy cập của runtime path:
+
+```bash
+chmod 755 /var/packages/DownloadStation/target/hostscript/hosts/fshare-vn
+chmod 644 /var/packages/DownloadStation/target/hostscript/hosts/fshare-vn/*
+```
 
 ---
 
