@@ -546,14 +546,13 @@ while true; do
     echo -e "  ${BOLD}Select an option:${NC}"
     echo ""
     echo -e "  ${CYAN}1.${NC} Install for VIP Account"
-    echo -e "  ${CYAN}2.${NC} Install for Free Account with Personal API Key"
-    echo -e "  ${CYAN}3.${NC} Check System Environment"
-    echo -e "  ${CYAN}4.${NC} Check Current Plugin Status"
-    echo -e "  ${CYAN}5.${NC} Repair / Reinstall Plugin"
-    echo -e "  ${CYAN}6.${NC} Uninstall Plugin"
+    echo -e "  ${CYAN}2.${NC} Check System Environment"
+    echo -e "  ${CYAN}3.${NC} Check Current Plugin Status"
+    echo -e "  ${CYAN}4.${NC} Repair / Reinstall Plugin"
+    echo -e "  ${CYAN}5.${NC} Uninstall Plugin"
     echo -e "  ${CYAN}0.${NC} Exit"
     echo ""
-    read -p "  Enter your choice [0/1/2/3/4/5/6]: " MENU_CHOICE
+    read -p "  Enter your choice [0/1/2/3/4/5]: " MENU_CHOICE
 
     case "$MENU_CHOICE" in
         1)
@@ -562,39 +561,21 @@ while true; do
             break
             ;;
         2)
-            while true; do
-                echo ""
-                echo -e "  ${YELLOW}→${NC} Enter the personal API key provided by Fshare:"
-                echo ""
-                read -p "  API Key: " CUSTOM_API_KEY
-                if [ -z "$CUSTOM_API_KEY" ]; then
-                    echo ""
-                    echo -e "${RED}  ✗ API key cannot be empty.${NC}"
-                else
-                    echo -e "  ${YELLOW}→${NC} Personal API key received"
-                    break
-                fi
-            done
-            INSTALL_MODE="FREE_API"
-            break
-            ;;
-        3)
             check_system_environment
             read -p "  Press Enter to return to the menu..." _pause
             ;;
-        4)
+        3)
             check_plugin_status
             read -p "  Press Enter to return to the menu..." _pause
             ;;
-        5)
+        4)
             echo ""
             echo -e "  ${BOLD}Repair options:${NC}"
             echo -e "  ${CYAN}1.${NC} Quick Repair (reuse current/default settings)"
             echo -e "  ${CYAN}2.${NC} Reinstall for VIP Account"
-            echo -e "  ${CYAN}3.${NC} Reinstall for Free Account with Personal API Key"
             echo -e "  ${CYAN}0.${NC} Back to Main Menu"
             echo ""
-            read -p "  Enter your choice [0/1/2/3]: " REPAIR_CHOICE
+            read -p "  Enter your choice [0/1/2]: " REPAIR_CHOICE
             case "$REPAIR_CHOICE" in
                 1)
                     if [ -f "$PLUGIN_DIR/custom_api_key.txt" ]; then
@@ -612,22 +593,6 @@ while true; do
                     echo -e "  ${YELLOW}→${NC} Repair + reinstall for VIP selected"
                     break 2
                     ;;
-                3)
-                    while true; do
-                        echo ""
-                        echo -e "  ${YELLOW}→${NC} Enter the personal API key provided by Fshare:"
-                        echo ""
-                        read -p "  API Key: " CUSTOM_API_KEY
-                        if [ -z "$CUSTOM_API_KEY" ]; then
-                            echo ""
-                            echo -e "${RED}  ✗ API key cannot be empty.${NC}"
-                        else
-                            INSTALL_MODE="REPAIR_FREE_API"
-                            echo -e "  ${YELLOW}→${NC} Repair + reinstall for Free API mode selected"
-                            break 2
-                        fi
-                    done
-                    ;;
                 0)
                     echo ""
                     ;;
@@ -637,7 +602,7 @@ while true; do
                     ;;
             esac
             ;;
-        6)
+        5)
             uninstall_plugin
             ;;
         0)
@@ -647,7 +612,7 @@ while true; do
             exit 0
             ;;
         *)
-            echo -e "${RED}  ✗ Invalid option. Please enter 0, 1, 2, 3, 4, 5 or 6.${NC}"
+            echo -e "${RED}  ✗ Invalid option. Please enter 0, 1, 2, 3, 4 or 5.${NC}"
             echo ""
             ;;
     esac
