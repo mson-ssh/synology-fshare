@@ -247,13 +247,39 @@ curl -fsSL https://raw.githubusercontent.com/mson-ssh/synology-fshare/main/insta
 
 > If you encounter a permission error, run `sudo -i` first then try again.
 
-The script will automatically download the plugin, apply the correct configuration, and restart Download Station. During installation, the script will prompt you to select an account type:
+The script will automatically download the plugin, apply the correct configuration, and restart Download Station. The main menu is shown in English, while the installation flow keeps Vietnamese prompts for local users.
 
 - Select **1** if you have a **VIP** account
 - Select **2** if you have a free account and have been issued a **personal API key** by Fshare
-- Select **3** to cancel and remove any previously installed files
+- Select **3** to check the system environment
+- Select **4** to check the current plugin status
+- Select **5** to repair or reinstall the plugin
+- Select **6** to uninstall the plugin
+- Select **0** to exit
 
 Once complete, open Download Station → Settings → File Hosting → select **Fshare.vn** → Edit → enter your Fshare email and password → Verify.
+
+### Post-install verification
+
+After installation, the expected state in **Download Station → Settings → File Hosting** is:
+
+- The old Synology / pyLoad Fshare entry may still appear, but it should stay **Deactive**
+- The host installed by this script should be **Active**
+
+Quick checks:
+
+1. Open **Download Station** → **Settings** → **File Hosting**
+2. Confirm the old Fshare entry is **Deactive**
+3. Confirm the custom `fshare-vn` host is **Active**
+4. Select the custom host → **Edit** → enter your email and password → **Verify**
+5. Test a real link such as `https://www.fshare.vn/file/XXXXXXXXXX`
+
+If the files are present but the new host still does not work, verify the runtime permissions:
+
+```bash
+chmod 755 /var/packages/DownloadStation/target/hostscript/hosts/fshare-vn
+chmod 644 /var/packages/DownloadStation/target/hostscript/hosts/fshare-vn/*
+```
 
 ---
 
