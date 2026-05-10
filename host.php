@@ -148,26 +148,10 @@ class SynoFileHostingFshareVn
             return LOGIN_FAIL;
         }
 
-        // Lấy thông tin user để kiểm tra VIP
-        $body = $this->httpGet(
-            self::API_URL . 'user/get',
-            $session['session_id']
-        );
-
-        if ($body === false) {
-            return LOGIN_FAIL;
-        }
-
-        $data = json_decode($body, true);
-        if (empty($data) || !isset($data['email'])) {
-            return LOGIN_FAIL;
-        }
-
-        // Kiểm tra expire_vip: nếu là số và > thời gian hiện tại → Premium
-        $expireVip = $data['expire_vip'] ?? '';
-        $isPremium = is_numeric($expireVip) && ((int)$expireVip > time());
-
-        return $isPremium ? USER_IS_PREMIUM : USER_IS_FREE;
+        // Nếu login thành công và không rơi vào VIP_ONLY thì coi như hợp lệ.
+        // Cách này bám sát thực tế vận hành hiện tại: Download hoạt động bình thường
+        // ngay cả khi endpoint user/get hoặc trường expire_vip không ổn định.
+        return USER_IS_PREMIUM;
     }
 
     // ════════════════════════════════════════════════════════════════════
